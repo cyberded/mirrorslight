@@ -38,7 +38,7 @@ char currentState = 0;
 
 interrupt [TIM0_OVF] void timer0_ovf_isr(void)
 {
-TCNT0=0x69;
+//TCNT0=0x00;
 millis++;
 }
 
@@ -106,10 +106,10 @@ ADCSRB&=0xF8;
 //Функция пропорционально переносит значение (value) из текущего диапазона значений (fromLow .. fromHigh) в новый диапазон (toLow .. toHigh), заданный параметрами.
 unsigned int _map(unsigned int x, unsigned int in_min, unsigned int in_max, unsigned int out_min, unsigned int out_max)
 {
-  //unsigned int result = (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+  unsigned int result;//unsigned int result = (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
   unsigned long temp = (x - in_min);
   temp = temp * (out_max - out_min);
-  unsigned int result = temp / (in_max - in_min) + out_min;
+  result = temp / (in_max - in_min) + out_min;
   //Serial.println(freeRam());
   
   
@@ -122,8 +122,8 @@ unsigned int _map(unsigned int x, unsigned int in_min, unsigned int in_max, unsi
 
 void analogWrite(unsigned char temp_value)
 {
-lightPin1 = maxPWMValue - temp_value;
-lightPin2 = maxPWMValue - temp_value;
+lightPin1 = 0xff - temp_value;
+lightPin2 = 0xff - temp_value;
 }
 
 void main(void)
@@ -169,12 +169,12 @@ sensorPowerPin = 0;
             currentState = 0;
 	     if(lastIntencitySetupValue != 0){
 	         maxIntencity = lastIntencitySetupValue;
-	     } else {
-	         analogWrite(lightPin, maxIntencity);
-	     }
+         } else {
+             analogWrite(maxIntencity);
+         }
             lightsState = 1;
             timeTrackingStarted = 0;    
-	    millis = 0;
+        millis = 0;
         }
   //Проверяем начинать ли настройку яркости
   if( timeToIntensitySetup < timeTracking && timeTracking < (timeToIntensitySetup + intensitySetupSpeed) && currentState != STATE_INTENCITY_SETUP){
@@ -204,16 +204,16 @@ sensorPowerPin = 0;
       analogWrite(value);
       
       if(millis > processStarted + intensitySetupSpeed + 1000){
-	  maxIntencity = maxPWMValue;
-          analogWrite(lightPin, maxPWMValue);          
+      maxIntencity = maxPWMValue;
+          analogWrite(maxPWMValue);          
           //currentState = 0;
       }
-      if(millis() > processStarted + intensitySetupSpeed + 1000 + 20000){
+      if(millis > processStarted + intensitySetupSpeed + 1000 + 20000){
         timeTrackingStarted = 0;
         timeTracking = 0;
         processStarted = 0;
         currentState = 0;
-        lightsState = false;
+        lightsState = 0;
         millis = 0;
       }
   }
@@ -229,10 +229,10 @@ sensorPowerPin = 0;
       //value = calculateNormalLight(lightsState);
       analogWrite(value);
       
-      if(millis > processStarted + switchingLightsSpeed){
-
-          currentState = 0;
-          millis = 0;
+      if(millis > (processStarted + switchingLightsSpeed)){
+        currentState = 0;
+           //processStarted = 0;
+       millis = 0;
       }
 
   }
@@ -240,6 +240,5 @@ sensorPowerPin = 0;
 
 }
 }
-
 
 
