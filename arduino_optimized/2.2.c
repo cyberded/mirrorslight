@@ -129,7 +129,7 @@ lightPin2 = 0xff - temp_value;
 void main(void)
 {
 init_avr();
-
+analogWrite(0);
 while (1)
 {
 unsigned char sensorValue;
