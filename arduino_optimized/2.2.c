@@ -192,7 +192,7 @@ sensorPowerPin = 0;
           value = 0;
       } else {
           //value = maxPWMValue - (millis - 1000) - processStarted;
-          value = _map(millis - processStarted, 0, intensitySetupSpeed, 0, maxPWMValue);
+          value = _map(millis - 1000 - processStarted, 0, intensitySetupSpeed, 0, maxPWMValue);
           //value = value - maxPWMValue;
         //Если выключаем, то инвертируем значение
       }
@@ -229,10 +229,10 @@ sensorPowerPin = 0;
       //value = calculateNormalLight(lightsState);
       analogWrite(value);
       
-      if(millis() > processStarted + switchingLightsSpeed){
- 	   currentState = 0;
-           processStarted = 0;
-	   millis = 0;
+      if(millis > processStarted + switchingLightsSpeed){
+
+          currentState = 0;
+          millis = 0;
       }
 
   }
@@ -241,13 +241,5 @@ sensorPowerPin = 0;
 }
 }
 
-void reset(){
-      timeTrackingStarted = 0;
-      timeTracking = 0;
-      processStarted = 0;
-      currentState = 0;
-      lightsState = false;
-      //millis = 0;
-}
 
 
