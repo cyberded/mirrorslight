@@ -31,14 +31,13 @@ unsigned int timeTracking = 0;
 #define STATE_INTENCITY_SETUP 2
 
 #define NORMAL 1
-//char switchingLigtsMode = 1;
 
 char currentState = 0;
 
 
 interrupt [TIM0_OVF] void timer0_ovf_isr(void)
 {
-//TCNT0=0x00;
+TCNT0=0x69;
 millis++;
 }
 
@@ -167,14 +166,14 @@ sensorPowerPin = 0;
       //Проверяем завершили ли настройку яркости
       if(timeTracking == 0 && currentState == STATE_INTENCITY_SETUP){
             currentState = 0;
-	     if(lastIntencitySetupValue != 0){
-	         maxIntencity = lastIntencitySetupValue;
+         if(lastIntencitySetupValue != 0){
+            maxIntencity = lastIntencitySetupValue;
          } else {
              analogWrite(maxIntencity);
          }
             lightsState = 1;
             timeTrackingStarted = 0;    
-        millis = 0;
+            millis = 0;
         }
   //Проверяем начинать ли настройку яркости
   if( timeToIntensitySetup < timeTracking && timeTracking < (timeToIntensitySetup + intensitySetupSpeed) && currentState != STATE_INTENCITY_SETUP){
@@ -229,7 +228,7 @@ sensorPowerPin = 0;
       //value = calculateNormalLight(lightsState);
       analogWrite(value);
       
-      if(millis > (processStarted + switchingLightsSpeed)){
+      if(millis > (processStarted + switchingLightsSpeed) && timeTracking == 0){
         currentState = 0;
            //processStarted = 0;
        millis = 0;
