@@ -113,30 +113,20 @@ boolean getAndFilterSensorValue(){
     } else {
       if (sensorCounter > sensorMeasuresCount){
         result = true;
-         /*Serial.print("Debug counter!!!!!!!!!!!!!!!!!! = ");
-        Serial.println(debugCounter);*/
       } else {
         sensorCounter++;
       }
     }
-    
-    
   } else {
-    /*if(sensorCounter > 3 ){
-        sensorCounter = sensorCounter - 1;
-    } else {*/
       if (sensorCounter < (-1 * sensorMeasuresCount)){
         result = false;
       } else {
         sensorCounter--;
       }
-    //}
+
   }
   
   lastSensorValue = result;
-  /*if(sensorCounter != -6 && sensorCounter != 6){
-  Serial.print("sensor counter ");
-  Serial.println(sensorCounter);}*/
   return result;
 }
 
@@ -207,11 +197,9 @@ void loop() {
     if (_millis - processStarted < 1000) {
       value = 0;
     } else {
-      /*value = (millis() - 1000) - processStarted;
-      value = _map(value, 0, intensitySetupSpeed, 0, maxPWMValue);*/
+
       //value = maxPWMValue - (millis - 1000) - processStarted;
       value = _map(_millis - 1000 - processStarted, 0, intensitySetupSpeed, 0, maxPWMValue);
-      Serial.println(value);
       //value = value - maxPWMValue;
       //Если выключаем, то инвертируем значение
     }
@@ -221,8 +209,6 @@ void loop() {
        value = value - maxPWMValue;
     }*/
     analogWrite(lightPin, value);
-   /* Serial.print("Output value = ");
-    Serial.println(value);*/
     if (_millis > processStarted + intensitySetupSpeed + 1000) {
       if(maxIntencity != maxPWMValue){
         maxIntencity = maxPWMValue;

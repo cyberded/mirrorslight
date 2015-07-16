@@ -125,10 +125,59 @@ lightPin1 = 0xff - temp_value;
 lightPin2 = 0xff - temp_value;
 }
 
+
+
+boolean getAndFilterSensorValue(){
+  boolean result = lastSensorValue;
+  //Изменяем значение только если много раз подряд появилось новое
+  boolean tempSensorValue = digitalRead(sensorInputPin);
+ /* Serial.print("tempSensorValue ");
+  Serial.println(tempSensorValue);*/
+  if(tempSensorValue){
+     debugCounter++;
+  }
+  if (tempSensorValue) {
+
+
+
+
+
+
+
+
+    if(sensorCounter < -3 ){
+        sensorCounter = sensorCounter + 3;
+    } else {
+      if (sensorCounter > sensorMeasuresCount){
+        result = true;
+      } else {
+        sensorCounter++;
+      }
+    }
+  } else {
+      if (sensorCounter < (-1 * sensorMeasuresCount)){
+        result = false;
+      } else {
+        sensorCounter--;
+      }
+  }
+  
+  lastSensorValue = result;
+  return result;
+}
+
 void main(void)
 {
 init_avr();
 analogWrite(0);
+
+/** TODO:
+unsigned char tempMaxIntencity = EEPROM.read(EEPROMAddr);
+if (tempMaxIntencity != 0){
+  maxIntencity = tempMaxIntencity;
+}
+*/
+
 while (1)
 {
 unsigned char sensorValue;
@@ -142,17 +191,19 @@ sensorValue = ADCW>>2;
 
 sensorPowerPin = 0;
       
-      if(sensorValue < 125){
-        if(timeTrackingStarted == 0){
-            timeTrackingStarted = millis;
+     boolean sensorValue = getAndFilterSensorValue();
+     if (sensorValue) {
+        if (timeTrackingStarted == 0) {
+          timeTrackingStarted = _millis;
         }
-        timeTracking = millis - timeTrackingStarted;
-      } else {
-        if(sensorValue > 160){
-            timeTrackingStarted = 0;
-            timeTracking = 0;
-        } 
-      }
+        timeTracking = _millis - timeTrackingStarted;
+    } else {
+
+
+
+        timeTrackingStarted = 0;
+        timeTracking = 0;
+    }
       //Проверяем нужно ли включить или выключить
       if((timeTracking > 0) && (currentState == 0)){
         processStarted = millis;
@@ -168,6 +219,9 @@ sensorPowerPin = 0;
             currentState = 0;
          if(lastIntencitySetupValue != 0){
             maxIntencity = lastIntencitySetupValue;
+            /** TODO:
+            EEPROM.write(EEPROMAddr, maxIntencity);
+            */
          } else {
              analogWrite(maxIntencity);
          }
@@ -203,8 +257,12 @@ sensorPowerPin = 0;
       analogWrite(value);
       
       if(millis > processStarted + intensitySetupSpeed + 1000){
-      maxIntencity = maxPWMValue;
-          analogWrite(maxPWMValue);          
+      if(maxIntencity != maxPWMValue){
+          maxIntencity = maxPWMValue;         
+          /** TODO:
+          EEPROM.write(EEPROMAddr, maxIntencity); 
+          */
+          analogWrite(lightPin, maxPWMValue);
           //currentState = 0;
       }
       if(millis > processStarted + intensitySetupSpeed + 1000 + 20000){
